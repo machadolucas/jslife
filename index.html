@@ -1,0 +1,127 @@
+<html>
+	<head>
+		<title>js life</title>
+		<meta charset="UTF-8"> 
+
+		<link href='http://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
+		<link href='style.css' rel='stylesheet' type='text/css'>
+
+		<script src="jquery2.1.3.js"></script>
+
+<!--
+		If n(x) <= 1, then x dies or stays dead (from under population).
+		If n(x) > 3, then x dies or stays dead (from over population).
+		if n(x) = 3, then x is born or stays alive.
+		if n(x) = 2, then x maintains status.
+-->
+		<script type="text/javascript">
+			var worldWidth = 30;
+			var worldHeight = 30;
+			var speed = 400;
+
+
+			//Start animation
+			function startTimer() {
+				paused = false;
+				window.tid = setInterval(loopFunction, speed);
+			}
+			//Stop animation
+			function abortTimer() {
+				paused = true;
+				clearInterval(tid);
+			}
+
+			function isAlive(indexes){
+				if ($( '#' + parseInt(indexes[0]) + '_' + parseInt(indexes[1]) ).hasClass('alive')){
+					return true;
+				}
+				return false;
+			}
+
+			function loopFunction() {
+				$('.tile').each(function(){
+					var currentIndexes = $(this).attr('id').split("_");
+					var aliveNeighbors = 0;
+					if (currentIndexes[0] > 0) {
+						if (currentIndexes[1] > 0) {
+							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]-1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+							var testIndexes = [currentIndexes[0],currentIndexes[1]-1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+						}
+						if (currentIndexes[1] < worldHeight - 1) {
+							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]+1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+						}
+						
+					}
+					if (aliveNeighbors <= 3 && currentIndexes[0] < worldWidth - 1) {
+						if (currentIndexes[1] < worldHeight - 1) {
+							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]+1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+							var testIndexes = [currentIndexes[0],currentIndexes[1]+1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+						}
+						if (currentIndexes[1] > 0) {
+							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]-1];
+							if(isAlive(testIndexes)) {
+								aliveNeighbors++;			
+							}
+						}
+					}
+					if (aliveNeighbors <= 1) {
+						$(this).removeClass('alive');
+					//} else if (aliveNeighbors == 2) {
+					} else if (aliveNeighbors == 3) {
+						$(this).addClass('alive');
+					} else if (aliveNeighbors > 3){
+						$(this).removeClass('alive');
+					}
+					
+				});
+			}
+
+			$(function() {
+
+				for (var h = 0; h < worldHeight; h++) {
+					for (var w = 0; w < worldWidth; w++) {
+						$('#world').append(
+							'<div class="tile" id="'+w+'_'+h+'"></div>');
+					};
+				};
+
+				$('#world').css('width',worldWidth * 18);
+				$('#world').css('height',worldHeight * 18);
+
+				$('.tile').on('click', function(){
+					$(this).addClass('alive');
+				});
+			});
+
+			
+		</script>
+		
+	</head>
+
+	<body>
+		<div id="world"></div>
+	</body>
+</html>
