@@ -26,6 +26,7 @@
 
 			var paused = true;
 			var generationsNbr = 0;
+			var world;
 
 			function toggleExecution(){
 				if (paused) {
@@ -48,7 +49,7 @@
 
 			//Clears the universe
 			function clearWorld() {
-				$('.tile').removeClass('alive');
+				drawUniverse();
 				generationsNbr = 0;
 				$('#generationsNbr').text(generationsNbr);
 			}
@@ -75,73 +76,89 @@
 
 			function loopFunction() {
 
-				$('.tile').each(function(){
-					var currentIndexes = $(this).attr('id').split("_");
-					currentIndexes = [parseInt(currentIndexes[0]), parseInt(currentIndexes[1])]
-					var aliveNeighbors = 0;
-					if (currentIndexes[0] > 0) {
-						if (currentIndexes[1] > 0) {
-							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]-1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
-							}
-							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
-							}
-							var testIndexes = [currentIndexes[0],currentIndexes[1]-1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
-							}
-						}
-						if (currentIndexes[1] < worldHeight - 1) {
-							var testIndexes = [currentIndexes[0]-1,currentIndexes[1]+1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
-							}
-						}
+				var toAdd = new Array();
+				var toDie = new Array();
+
+				for (var x = 0; x < world.length; x++) {
+					for (var y = 0; y < world[x].length; y++) {
 						
-					}
-					if (aliveNeighbors <= 3 && currentIndexes[0] < worldWidth - 1) {
-						if (currentIndexes[1] < worldHeight - 1) {
-							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]+1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
+						var aliveNeighbors = 0;
+						if (x > 0) {
+							if (y > 0) {
+								if(world[x-1][y-1]) {
+									aliveNeighbors++;			
+								}
+								if(world[x-1][y]) {
+									aliveNeighbors++;			
+								}
+								if(world[x][y-1]) {
+									aliveNeighbors++;			
+								}
 							}
-							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
+							if (y < worldHeight - 1) {
+								if(world[x-1][y+1]) {
+									aliveNeighbors++;			
+								}
 							}
-							var testIndexes = [currentIndexes[0],currentIndexes[1]+1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
+							
+						}
+						if (aliveNeighbors <= 3 && x < worldWidth - 1) {
+							if (y < worldHeight - 1) {
+								if(world[x+1][y+1]) {
+									aliveNeighbors++;			
+								}
+								if(world[x+1][y]) {
+									aliveNeighbors++;			
+								}
+								if(world[x][y+1]) {
+									aliveNeighbors++;			
+								}
+							}
+							if (y > 0) {
+								if(world[x+1][y-1]) {
+									aliveNeighbors++;			
+								}
 							}
 						}
-						if (currentIndexes[1] > 0) {
-							var testIndexes = [currentIndexes[0]+1,currentIndexes[1]-1];
-							if(isAlive(testIndexes)) {
-								aliveNeighbors++;			
-							}
+						if (aliveNeighbors < 2 || aliveNeighbors > 3) {
+							toDie.push([x,y]);
+						} else if (aliveNeighbors == 3) {
+							toAdd.push([x,y]);
 						}
+
 					}
-					if (aliveNeighbors <= 1) {
-						$(this).removeClass('alive');
-					//} else if (aliveNeighbors == 2) {
-					} else if (aliveNeighbors == 3) {
+				}
+				for (var i = 0; i < toDie.length; i++) {
+					world[toDie[i][0]][toDie[i][1]] = false;
+				}
+				for (var i = 0; i < toAdd.length; i++) {
+					world[toAdd[i][0]][toAdd[i][1]] = true;
+				}
+				
+
+				$('.tile').each(function(){
+					var thisCell = $(this).attr('id').split("_");
+					thisCell = [parseInt(thisCell[0]), parseInt(thisCell[1])];
+					if (world[thisCell[0]][thisCell[1]]) {
 						$(this).addClass('alive');
-					} else if (aliveNeighbors > 3){
+					} else {
 						$(this).removeClass('alive');
 					}
 					
 				});
+
 				generationsNbr++;
 				$('#generationsNbr').text(generationsNbr);
 			}
 
 			function drawUniverse(){
+				world = new Array();
+
 				$('#world').empty()
-				for (var h = 0; h < worldHeight; h++) {
-					for (var w = 0; w < worldWidth; w++) {
+				for (var w = 0; w < worldWidth; w++) {
+					world[w] = new Array();
+					for (var h = 0; h < worldHeight; h++) {
+						world[w][h] = false;
 						$('#world').append(
 							'<div class="tile" id="'+w+'_'+h+'"></div>');
 					};
@@ -151,6 +168,11 @@
 				$('#world').css('height',worldHeight * 18);
 
 				$('.tile').on('click', function(){
+					var thisCell = $(this).attr('id').split("_");
+					thisCell = [parseInt(thisCell[0]), parseInt(thisCell[1])];
+
+					var currentValue = world[thisCell[0]][thisCell[1]];
+					world[thisCell[0]][thisCell[1]] = !currentValue;
 					$(this).toggleClass('alive');
 				});
 			}
