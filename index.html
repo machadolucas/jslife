@@ -1,3 +1,8 @@
+<!--
+	Developed on 27-Jan-2015 by
+	© 2015 Lucas Machado
+	http://machadolucas.me
+-->
 <html>
 	<head>
 		<title>js life</title>
@@ -17,30 +22,53 @@
 		<script type="text/javascript">
 			var worldWidth = 30;
 			var worldHeight = 30;
-			var speed = 400;
+			var speed = 100;
 
+			var paused = true;
+			var generationsNbr = 0;
+
+			function toggleExecution(){
+				if (paused) {
+					$('#toggleExecBtn').text('Pause');
+					startTimer();
+					
+				} else {
+					$('#toggleExecBtn').text('Start');
+					abortTimer();
+				}	
+			}
+
+			function clearWorld() {
+				$('.tile').removeClass('alive');
+				generationsNbr = 0;
+				$('#generationsNbr').text(generationsNbr);
+			}
 
 			//Start animation
 			function startTimer() {
 				paused = false;
 				window.tid = setInterval(loopFunction, speed);
 			}
+			
 			//Stop animation
 			function abortTimer() {
 				paused = true;
 				clearInterval(tid);
 			}
 
+			//Check if the item with id indexes[0]_indexes[1] is alive
 			function isAlive(indexes){
-				if ($( '#' + parseInt(indexes[0]) + '_' + parseInt(indexes[1]) ).hasClass('alive')){
+				if ($( '#' + indexes[0] + '_' + indexes[1] ).hasClass('alive')){
 					return true;
 				}
 				return false;
 			}
 
 			function loopFunction() {
+
 				$('.tile').each(function(){
 					var currentIndexes = $(this).attr('id').split("_");
+					currentIndexes = [parseInt(currentIndexes[0]), parseInt(currentIndexes[1])]
 					var aliveNeighbors = 0;
 					if (currentIndexes[0] > 0) {
 						if (currentIndexes[1] > 0) {
@@ -97,6 +125,8 @@
 					}
 					
 				});
+				generationsNbr++;
+				$('#generationsNbr').text(generationsNbr);
 			}
 
 			$(function() {
@@ -112,7 +142,7 @@
 				$('#world').css('height',worldHeight * 18);
 
 				$('.tile').on('click', function(){
-					$(this).addClass('alive');
+					$(this).toggleClass('alive');
 				});
 			});
 
@@ -122,6 +152,35 @@
 	</head>
 
 	<body>
+
+		<a href="https://github.com/machadolucas/jslife"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
+
+		
+		
+		
+		<header>
+			<h1>JS Life</h1>
+			<h3>Game of life in JavaScript</h3>
+			<p>Given n(x) as the number of neighbors of the x cell:</p>
+			<ul>
+				<li>If n(x) <= 1, then x dies or stays dead (from under population).</li>
+				<li>If n(x) > 3, then x dies or stays dead (from over population).</li>
+				<li>if n(x) == 3, then x is born or stays alive.</li>
+				<li>if n(x) == 2, then x maintains status.</li>
+			</ul>
+		</header>
+
 		<div id="world"></div>
+
+		<div class="controls">
+			<p>Number of generations: <span id="generationsNbr">0</span></p>
+			<button id="toggleExecBtn" onclick="toggleExecution()">&#9205;</button>
+			<button id="clearWorldBtn" onclick="clearWorld()">Clear</button>
+		</div>
+
+		<footer>
+			© 2015 Lucas Machado. <a href="http://machadolucas.me">machadolucas.me</a>
+		</footer>
+
 	</body>
 </html>
