@@ -5,7 +5,7 @@
 -->
 <html>
 	<head>
-		<title>js life</title>
+		<title>JS Life</title>
 		<meta charset="UTF-8"> 
 
 		<link href='http://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
@@ -29,15 +29,24 @@
 
 			function toggleExecution(){
 				if (paused) {
-					$('#toggleExecBtn').text('Pause');
+					$('#toggleExecBtn').text('[===] Pause');
 					startTimer();
 					
 				} else {
-					$('#toggleExecBtn').text('Start');
+					$('#toggleExecBtn').text('[>>>] Play');
 					abortTimer();
 				}	
 			}
 
+			//Save settings
+			function changeSettings() {
+				worldWidth = $('#setWW').val();
+				worldHeight = $('#setWH').val();
+				speed = $('#setSpeed').val();
+				drawUniverse();
+			}
+
+			//Clears the universe
 			function clearWorld() {
 				$('.tile').removeClass('alive');
 				generationsNbr = 0;
@@ -129,8 +138,8 @@
 				$('#generationsNbr').text(generationsNbr);
 			}
 
-			$(function() {
-
+			function drawUniverse(){
+				$('#world').empty()
 				for (var h = 0; h < worldHeight; h++) {
 					for (var w = 0; w < worldWidth; w++) {
 						$('#world').append(
@@ -144,6 +153,10 @@
 				$('.tile').on('click', function(){
 					$(this).toggleClass('alive');
 				});
+			}
+
+			$(function() {
+				drawUniverse();
 			});
 
 			
@@ -173,9 +186,31 @@
 		<div id="world"></div>
 
 		<div class="controls">
+			<button id="nextGenBtn" onclick="loopFunction()">[&gt;] Next Generation</button>
+			<button id="toggleExecBtn" onclick="toggleExecution()">[&gt;&gt;&gt;] Play</button>
+			<button id="clearWorldBtn" onclick="clearWorld()">[X] Clear</button>
 			<p>Number of generations: <span id="generationsNbr">0</span></p>
-			<button id="toggleExecBtn" onclick="toggleExecution()">&#9205;</button>
-			<button id="clearWorldBtn" onclick="clearWorld()">Clear</button>
+		</div>
+
+
+		<div id="settings">
+			<h2 id="settingsBtn">Settings</h2>
+			<table>
+				<tr>
+					<th>World Width</th>
+					<td><input id="setWW" type="number" min="10" max="50" value="30"></td>
+				</tr>
+				<tr>
+					<th>World Height</th>
+					<td><input id="setWH" type="number" min="10" max="50" value="30"></td>
+				</tr>
+				<tr>
+					<th>Speed</th>
+					<td>faster<input id="setSpeed" type="range" min="100" max="2000" value="100">slower</td>
+				</tr>
+			</table>
+			<button onclick="changeSettings()">Apply</button>
+			
 		</div>
 
 		<footer>
